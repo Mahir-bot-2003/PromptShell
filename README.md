@@ -1,6 +1,6 @@
-# Simple Python Shell
+# Simple Shell
 
-This project is a functional **Command Line Interpreter (CLI)** built with Python. It mimics the core behavior of a Unix-like shell, supporting built-in commands and the execution of external system programs via subprocesses. And helps to understadn how the scenes work behind the all commands
+This project is a functional **Command Line Interpreter (CLI)** built with Python. It mimics the core behavior of a Unix-like shell, supporting built-in commands and the execution of external system programs via subprocesses and helps to understand how the scenes work behind the all commands and try to build it from the scratch.
 
 ---
 
