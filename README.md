@@ -1,6 +1,6 @@
-# Simple Python Shell (PyShell)
+# Simple Python Shell
 
-This project is a functional **Command Line Interpreter (CLI)** built with Python. It mimics the core behavior of a Unix-like shell, supporting built-in commands and the execution of external system programs via subprocesses.
+This project is a functional **Command Line Interpreter (CLI)** built with Python. It mimics the core behavior of a Unix-like shell, supporting built-in commands and the execution of external system programs via subprocesses. And helps to understadn how the scenes work behind the all commands
 
 ---
 
@@ -15,11 +15,7 @@ The following commands are handled directly by the script logic:
 * `cd`: Changes the current directory (supports `~` for the home directory).
 * `type`: Identifies if a command is a shell builtin or an external executable.
 * `exit`: Safely terminates the shell session.
-
-### 2. External Command Execution
-If a command is not a builtin, the shell searches the system's `PATH` (using `shutil.which`) and attempts to execute it. This allows you to run standard tools like `ls`, `grep`, or `cat` directly from this shell.
-
----
+* More will be updated 
 
 ## ## Getting Started
 
@@ -29,19 +25,12 @@ If a command is not a builtin, the shell searches the system's `PATH` (using `sh
 ### How to Run
 1.  Clone this repository or download the `APP.py` file.
 2.  Open your terminal or command prompt.
-3.  Run the script:
+3.  Go to you path in the command prompt or terminal
+4.  Run the script:
     ```bash
     python APP.py
     ```
-4.  You will see a `$ ` prompt where you can begin entering commands.
-
----
-
-## ## Project Structure
-
-| File | Description |
-| :--- | :--- |
-| `APP.py` | The main script containing the command loop, tokenization, and logic. |
+5.  You will see a `$ ` prompt where you can begin entering commands.
 
 ---
 
