@@ -18,23 +18,23 @@ def main():
         #e.g. echo 'hello world' yes
         tokens = shlex.split(command)
 
-        redirect = False
-        redirect_err = False
-        output_file = None
+        redirect = False #means ki where the output should go (stdout)
+        redirect_err = False # it is for the stderr output
+        output_file = None #these both are the files
         error_file = None
-        command_tokens = []
-        append = False
+        command_tokens = [] #this will only contains the commands only 
+        append = False #this will not overwrite the files. It will add to the text
 
         if not tokens:
             continue
         
-        command_tokens = tokens
+        command_tokens = tokens 
 
         for i, token in enumerate(tokens):
             if token == ">>" or token == "1>>":
                 append = True
                 redirect  = True
-                command_tokens = tokens[:i]  # FIXED: tokens instead of token
+                command_tokens = tokens[:i]  
                 output_file = tokens[i + 1]
                 break
 
@@ -56,17 +56,33 @@ def main():
                 redirect = True
                 append = False
                 command_tokens = tokens[:i]
-                output_file = token[1:]      # FIXED: token instead of tokens
+                output_file = token[1:]      
+                break
+            
+            elif token == "2>>":
+                redirect_err = True
+                append = True
+                command_tokens = tokens[:i]
+                error_file = tokens[i + 1]
+                break
+
+            elif token.startswith("2>>"):
+                redirect_err = True
+                append = True
+                command_tokens = tokens[:i]
+                error_file = token[3:]
                 break
 
             elif token == "2>":
                 redirect_err = True
+                append = False
                 command_tokens = tokens[:i]
                 error_file = tokens[i + 1]
                 break
 
             elif token.startswith("2>"):
                 redirect_err = True
+                append = False
                 command_tokens = tokens[:i]
                 error_file = token[2:]
                 break
@@ -101,7 +117,8 @@ def main():
                 directory = os.path.dirname(error_file)
                 if directory:
                     os.makedirs(directory, exist_ok=True)
-                open(error_file, "w").close()
+                mode = 'a' if append else "w"
+                open(error_file, mode).close()
 
         #the cd is used to change the directory 
         elif command_tokens[0] == "cd":
@@ -120,7 +137,8 @@ def main():
                      directory = os.path.dirname(error_file)
                      if directory:
                          os.makedirs(directory, exist_ok=True)
-                     with open(error_file, "w") as file:
+                     mode = "a" if append else "w"
+                     with open(error_file, mode) as file:
                          file.write(error_msg)
                  else:
                      sys.stdout.write(error_msg)
@@ -171,7 +189,8 @@ def main():
                 directory = os.path.dirname(error_file)
                 if directory:
                     os.makedirs(directory, exist_ok=True)
-                open(error_file, "w").close()
+                mode = "a" if append else "w"
+                open(error_file, mode).close()
 
         else:
             path = shutil.which(command_tokens[0])
@@ -189,7 +208,8 @@ def main():
                     directory = os.path.dirname(error_file)
                     if directory:
                          os.makedirs(directory, exist_ok=True)
-                    file = open(error_file, "w")
+                    mode = "a" if append else "w"
+                    file = open(error_file, mode)
                     subprocess.run(command_tokens, stderr=file)
                     file.close()
                 else:
@@ -200,7 +220,8 @@ def main():
                     directory = os.path.dirname(error_file)
                     if directory:
                         os.makedirs(directory, exist_ok=True)
-                    with open(error_file, "w") as file:
+                    mode = "a" if append else "w"
+                    with open(error_file, mode) as file:
                         file.write(error_msg)
                 else:
                     sys.stdout.write(error_msg)
