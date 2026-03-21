@@ -42,5 +42,7 @@ The following commands are handled directly by the script logic:
 * **Path Resolution**: Uses `shutil` to dynamically find the location of external binaries.
 
 ---
-
+## ## Updates
+* Enhance the file directory files
+* Added the append mode in the stderr and stdout.
 > **Note:** This shell is currently a foundational project. It treats single spaces as delimiters and does not yet support advanced features like piping (`|`) or output redirection (`>`).
