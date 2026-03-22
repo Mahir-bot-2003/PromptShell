@@ -1,4 +1,3 @@
-```markdown
 # 🖥️ Simple Shell (Python CLI)
 
 This project is a **custom Unix-like Command Line Interpreter (Shell)** built from scratch using Python.  
