@@ -3,11 +3,24 @@ import shutil #file and program
 import subprocess #run other porgrams
 import os  #plays with the directory
 import shlex #shelex handles automatically spaces and splits better
+import readline #use to make cli input smarter and interative
 
+
+def command_completer(text, state):
+    line = readline.get_line_buffer() #get the current text of the user which is current written by the user
+    if " " in line:
+        return None
+    
+    builtins_for_tab = ["echo", "exit"]
+    matches = [cmd + " " for cmd in builtins_for_tab if cmd.startswith(text)]
+    return matches[state] if state < len(matches) else None
+ 
 def main():
     #these are the built-in commands
     builtin = ["exit", "echo", "type", "pwd", "cd"]
     #applying the loop condition
+    readline.parse_and_bind("tab: complete") #binds the tab ket and complete the action automatically
+    readline.set_completer(command_completer)
     while True:
         sys.stdout.write("$ ")
 
@@ -20,8 +33,8 @@ def main():
 
         redirect = False #means ki where the output should go (stdout)
         redirect_err = False # it is for the stderr output
-        output_file = None #these both are the files
-        error_file = None
+        output_file = None #this is the output file 
+        error_file = None #this is the error file 
         command_tokens = [] #this will only contains the commands only 
         append = False #this will not overwrite the files. It will add to the text
 
@@ -29,23 +42,23 @@ def main():
             continue
         
         command_tokens = tokens 
-
+        
         for i, token in enumerate(tokens):
-            if token == ">>" or token == "1>>":
+            if token == ">>" or token == "1>>":   
                 append = True
                 redirect  = True
                 command_tokens = tokens[:i]  
                 output_file = tokens[i + 1]
                 break
 
-            elif token.startswith(">>"):
+            elif token.startswith(">>"): #he >> operator appends the standard output of a command to a file.
                 redirect = True
                 append = True
                 command_tokens = tokens[:i]
                 output_file = token[2:]
                 break
 
-            elif token == ">" or token == "1>":
+            elif token == ">" or token == "1>": #The > operator redirects the standard output of a command to a file.
                 redirect = True
                 append = False
                 command_tokens = tokens[:i]
@@ -59,7 +72,7 @@ def main():
                 output_file = token[1:]      
                 break
             
-            elif token == "2>>":
+            elif token == "2>>": #The 2>> operator appends the standard error of a command to a file.
                 redirect_err = True
                 append = True
                 command_tokens = tokens[:i]
@@ -73,7 +86,7 @@ def main():
                 error_file = token[3:]
                 break
 
-            elif token == "2>":
+            elif token == "2>": #The 2> operator redirects the standard error of a command to a file.
                 redirect_err = True
                 append = False
                 command_tokens = tokens[:i]
@@ -137,7 +150,7 @@ def main():
                      directory = os.path.dirname(error_file)
                      if directory:
                          os.makedirs(directory, exist_ok=True)
-                     mode = "a" if append else "w"
+                     mode = "a" if append else "w" 
                      with open(error_file, mode) as file:
                          file.write(error_msg)
                  else:
@@ -162,7 +175,7 @@ def main():
                 directory = os.path.dirname(error_file)
                 if directory:
                     os.makedirs(directory, exist_ok=True)
-                open(error_file, "w").close()
+                open(error_file, "w").close() 
 
         #this type command helps to find the path 
         elif command_tokens[0] == "type":
@@ -197,7 +210,7 @@ def main():
             #this condition helps to run the program
             if path:
                 if redirect:
-                    directory = os.path.dirname(output_file)
+                    directory = os.path.dirname(output_file) 
                     if directory:
                         os.makedirs(directory, exist_ok=True)
                     mode = "a" if append else "w"
