@@ -5,15 +5,89 @@ import os  #plays with the directory
 import shlex #shelex handles automatically spaces and splits better
 import readline #use to make cli input smarter and interative
 
+_last_prefix = None
+_tab_count = 0
+
+def get_all_commands_for_tab(): #this function will help to find the all command in a folder and show it using tab
+    cmds = {"echo", "exit"}
+    for folder in os.environ.get("PATH", "").split(os.pathsep):
+        #.get("PATH ") gives all the path 
+        #os.pathsep(Separator between folders)
+        if not folder:
+            continue
+        try:
+            for name in os.listdir(folder):
+                full = os.path.join(folder, name)
+                if os.path.isfile(full) and os.access(full, os.X_OK):
+                    #this lines check whether file is not not a folder and is it executable ot not
+                    cmds.add(name)
+        except OSError:
+            pass
+    return sorted(cmds)
+
+#this function is used bexuase shell can auto complete as much as possible WITHOUT guessing wrong
+def longest_common_prefix(words):
+    if not words:
+        return ""
+
+    for i in range(len(words[0])):
+        char = words[0][i]
+
+        for word in words:
+            if i >= len(word) or word[i] != char:
+                return words[0][:i]
+
+    return words[0]
 
 def command_completer(text, state):
-    line = readline.get_line_buffer() #get the current text of the user which is current written by the user
+    global _last_prefix, _tab_count
+    line = readline.get_line_buffer()
     if " " in line:
+        last_prefix = None
+        _tab_count = 0
+        return None
+
+    if state != 0:
         return None
     
-    builtins_for_tab = ["echo", "exit"]
-    matches = [cmd + " " for cmd in builtins_for_tab if cmd.startswith(text)]
-    return matches[state] if state < len(matches) else None
+    matches = [c for c in get_all_commands_for_tab() if c.startswith(text)]
+    matches.sort()
+
+    if not matches:
+        _last_prefix = None
+        _tab_count = 0
+        return None
+    
+    if len(matches) == 1:
+        _last_prefix = None
+        _tab_count = 0
+        return matches[0] + " "
+    
+    lcp = longest_common_prefix(matches)
+
+    if len(lcp) > len(text):
+        _last_prefix = None
+        _tab_count = 0
+        return lcp
+
+    
+    if _last_prefix == text:
+        _tab_count += 1
+    else:
+        _last_prefix = text
+        _tab_count = 1
+
+    if _tab_count == 1:
+        sys.stdout.write("\x07")
+        sys.stdout.flush()
+        return None
+    sys.stdout.write("\n" + "  ".join(matches) + "\n")
+    sys.stdout.write("$ " + text)
+    sys.stdout.flush()
+
+    # Reset for next cycle
+    _tab_count = 0
+    return None 
  
 def main():
     #these are the built-in commands
