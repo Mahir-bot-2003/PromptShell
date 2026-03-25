@@ -102,7 +102,7 @@ This is a foundational system-level project. Some advanced features are currentl
 * ❌ Environment variables (`$HOME`, etc.)
 * ❌ Job control (`fg`, `bg`)
 * ❌ History navigation (↑/↓ arrows)
-
+* AI integration
 ---
 
 ## Future Improvements
