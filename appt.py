@@ -41,53 +41,99 @@ def longest_common_prefix(words):
 
 def command_completer(text, state):
     global _last_prefix, _tab_count
-    line = readline.get_line_buffer()
-    if " " in line:
-        last_prefix = None
-        _tab_count = 0
-        return None
 
-    if state != 0:
-        return None
-    
-    matches = [c for c in get_all_commands_for_tab() if c.startswith(text)]
-    matches.sort()
+    # We only perform the search logic on the first call (state 0)
+    if state == 0:
+        line = readline.get_line_buffer()
+        begin = readline.get_begidx()
 
-    if not matches:
-        _last_prefix = None
-        _tab_count = 0
-        return None
-    
-    if len(matches) == 1:
-        _last_prefix = None
-        _tab_count = 0
-        return matches[0] + " "
-    
-    lcp = longest_common_prefix(matches)
+        # --- ARGUMENT COMPLETION ---
+        if begin > 0:
+            if "/" in text:
+                directory, _, prefix = text.rpartition("/")
+                search_dir = directory if directory else "/"
+            else:
+                search_dir, directory, prefix = ".", "", text
 
-    if len(lcp) > len(text):
-        _last_prefix = None
-        _tab_count = 0
-        return lcp
+            try:
+                names = os.listdir(search_dir)
+                matches = sorted([n for n in names if n.startswith(prefix)])
+            except OSError:
+                return None
 
-    
-    if _last_prefix == text:
-        _tab_count += 1
-    else:
-        _last_prefix = text
-        _tab_count = 1
+            if not matches:
+                _last_prefix, _tab_count = None, 0
+                return None
 
-    if _tab_count == 1:
-        sys.stdout.write("\x07")
-        sys.stdout.flush()
-        return None
-    sys.stdout.write("\n" + "  ".join(matches) + "\n")
-    sys.stdout.write("$ " + text)
-    sys.stdout.flush()
+            # Handle Exactly One Match
+            if len(matches) == 1:
+                name = matches[0]
+                full_path = os.path.join(search_dir, name)
+                suffix = "/" if os.path.isdir(full_path) else " "
+                _last_prefix, _tab_count = None, 0
+                
+                if directory: return directory + "/" + name + suffix
+                if text.startswith("/"): return "/" + name + suffix
+                return name + suffix
 
-    # Reset for next cycle
-    _tab_count = 0
-    return None 
+            # Handle Multiple Matches: Find LCP
+            lcp_name = longest_common_prefix(matches)
+            if len(lcp_name) > len(prefix):
+                _last_prefix, _tab_count = None, 0
+                if directory: return directory + "/" + lcp_name
+                if text.startswith("/"): return "/" + lcp_name
+                return lcp_name
+
+            # Multiple matches, no more LCP to add: Bell/List logic
+            if _last_prefix == text: _tab_count += 1
+            else: _last_prefix, _tab_count = text, 1
+
+            if _tab_count == 1:
+                sys.stdout.write("\x07")
+            else:
+                # Show directories with /, files with nothing
+                display = []
+                for n in matches:
+                    full = os.path.join(search_dir, n)
+                    display.append(n + "/" if os.path.isdir(full) else n)
+                sys.stdout.write("\n" + "  ".join(display) + "\n")
+                sys.stdout.write("$ " + line)
+                _tab_count = 0
+            
+            sys.stdout.flush()
+            return None
+
+        # --- COMMAND COMPLETION ---
+        else:
+            matches = sorted([c for c in get_all_commands_for_tab() if c.startswith(text)])
+            if not matches:
+                _last_prefix, _tab_count = None, 0
+                return None
+
+            if len(matches) == 1:
+                _last_prefix, _tab_count = None, 0
+                return matches[0] + " "
+
+            lcp = longest_common_prefix(matches)
+            if len(lcp) > len(text):
+                _last_prefix, _tab_count = None, 0
+                return lcp
+
+            if _last_prefix == text: _tab_count += 1
+            else: _last_prefix, _tab_count = text, 1
+
+            if _tab_count == 1:
+                sys.stdout.write("\x07")
+            else:
+                sys.stdout.write("\n" + "  ".join(matches) + "\n")
+                sys.stdout.write("$ " + line)
+                _tab_count = 0
+            
+            sys.stdout.flush()
+            return None
+
+    # For state > 0, always return None to tell readline we are done
+    return None
  
 def main():
     #these are the built-in commands
@@ -95,6 +141,7 @@ def main():
     #applying the loop condition
     readline.parse_and_bind("tab: complete") #binds the tab ket and complete the action automatically
     readline.set_completer(command_completer)
+    readline.set_completer_delims(" \t\n") #readline which characters separate words during tab completion
     while True:
         sys.stdout.write("$ ")
 
