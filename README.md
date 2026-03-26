@@ -102,7 +102,6 @@ This is a foundational system-level project. Some advanced features are currentl
 * ❌ Environment variables (`$HOME`, etc.)
 * ❌ Job control (`fg`, `bg`)
 * ❌ History navigation (↑/↓ arrows)
-* AI integration
 ---
 
 ## Future Improvements
@@ -112,6 +111,7 @@ This is a foundational system-level project. Some advanced features are currentl
 - [ ] **Environment variable expansion:** `$VAR` support
 - [ ] **Signal handling:** Proper `Ctrl+C` management
 - [ ] **Configuration:** Support for a `.myshellrc` file
+- [ ] **AI integrations**
 
 ---
 
