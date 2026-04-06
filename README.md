@@ -70,7 +70,7 @@ Built using the `readline` module to provide:
 ### Installation & Execution
 1. Clone this repository:
    ```bash
-   git clone [https://github.com/yourusername/simple-shell-python.git](https://github.com/yourusername/simple-shell-python.git)
+   git clone [https://github.com/Mahir-bot-2003/simple-shell-python.git](https://github.com/Mahir-bot-2003/simple-shell-python.git)
    cd simple-shell-python
    ```
 2. Run the Shell:
